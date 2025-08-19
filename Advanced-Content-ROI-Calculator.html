@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Content ROI Calculator | Measure Content Marketing Performance</title>
+    <meta name="description" content="Advanced, free calculator to measure Content Marketing ROI, Customer Lifetime Value, Break-even point, and profitability. Essential for marketers and bloggers.">
+    <meta name="keywords" content="content roi calculator, marketing roi, clv calculator, content marketing analytics, seo tool, blog roi">
+    <!-- Load Chart.js for visual graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a0ca3;
+            --accent: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --success: #4cc9f0;
+            --warning: #ffd166;
+            --danger: #ef476f;
+            --border-radius: 12px;
+            --box-shadow: 0 6px 25px rgba(0, 0, 0, 0.075);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7ff 0%, #f0f4ff 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        header {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 2rem;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        h1 {
+            color: var(--primary-dark);
+            margin-bottom: 0.5rem;
+            font-size: 2.2rem;
+        }
+
+        .subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 2rem;
+            transition: var(--transition);
+        }
+
+        .input-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .input-section {
+            border-bottom: 2px solid var(--light-gray);
+            padding-bottom: 1.5rem;
+        }
+
+        .input-section h3 {
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .help-icon {
+            cursor: pointer;
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+
+        .help-text {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-top: 0.35rem;
+            padding: 0.75rem;
+            background-color: var(--light-gray);
+            border-radius: 6px;
+            display: none;
+        }
+
+        .help-icon:hover + .help-text {
+            display: block;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        button {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(67, 97, 238, 0.35);
+        }
+
+        .btn-secondary {
+            background-color: var(--light-gray);
+            color: var(--dark);
+        }
+
+        .btn-secondary:hover {
+            background-color: #dde1e6;
+        }
+
+        .result-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .result-card {
+            background: var(--light);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            border-left: 5px solid var(--primary);
+        }
+
+        .result-card h3 {
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #d1e7ff;
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary-dark);
+        }
+
+        .metric-value {
+            font-weight: 600;
+        }
+
+        .positive {
+            color: #2ecc71;
+        }
+
+        .negative {
+            color: var(--danger);
+        }
+
+        .neutral {
+            color: var(--gray);
+        }
+
+        .chart-container {
+            margin-top: auto;
+            height: 250px;
+            position: relative;
+        }
+
+        .save-load-hint {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: var(--gray);
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <header>
+            <div class="logo">📊 ContentROI Pro</div>
+            <h1>Advanced Content ROI Calculator</h1>
+            <p class="subtitle">Analyze the full financial impact of your content marketing, including lifetime value and break-even point.</p>
+        </header>
+
+        <section class="panel input-panel">
+            <div class="input-section">
+                <h3>💰 Investment Costs</h3>
+                <div class="input-group">
+                    <label for="contentProduction">Content Production ($)</label>
+                    <input type="number" id="contentProduction" min="0" placeholder="e.g., 1500" value="1500">
+                </div>
+                <div class="input-group">
+                    <label for="contentPromotion">Promotion & Distribution ($)</label>
+                    <input type="number" id="contentPromotion" min="0" placeholder="e.g., 500" value="500">
+                </div>
+                <div class="input-group">
+                    <label for="toolsSoftware">Tools & Software (Monthly $) <span class="help-icon">ℹ️</span></label>
+                    <input type="number" id="toolsSoftware" min="0" placeholder="e.g., 200" value="200">
+                    <p class="help-text">Your monthly spend on SEO, analytics, and marketing tools. This calculator will annualize it for the ROI period.</p>
+                </div>
+            </div>
+
+            <div class="input-section">
+                <h3>📈 Returns & Metrics</h3>
+                <div class="input-group">
+                    <label for="convertedLeads">Leads Generated</label>
+                    <input type="number" id="convertedLeads" min="0" placeholder="e.g., 120" value="120">
+                </div>
+                <div class="input-group">
+                    <label for="conversionRate">Lead-to-Customer Rate (%) <span class="help-icon">ℹ️</span></label>
+                    <input type="number" id="conversionRate" min="0" max="100" step="0.1" placeholder="e.g., 10" value="10">
+                    <p class="help-text">The percentage of leads that become paying customers.</p>
+                </div>
+                <div class="input-group">
+                    <label for="averageSale">Average Sale Value ($)</label>
+                    <input type="number" id="averageSale" min="0" placeholder="e.g., 100" value="100">
+                </div>
+                <div class="input-group">
+                    <label for="customerLTV">Customer Lifetime Value (LTV) ($) <span class="help-icon">ℹ️</span></label>
+                    <input type="number" id="customerLTV" min="0" placeholder="e.g., 500" value="500">
+                    <p class="help-text">The total revenue you expect from a single customer over their lifetime.</p>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button class="btn-primary" onclick="calculateAdvancedROI()">Calculate Full ROI</button>
+                <button class="btn-secondary" onclick="saveData()">Save Inputs</button>
+                <button class="btn-secondary" onclick="loadData()">Load Inputs</button>
+                <button class="btn-secondary" onclick="resetCalculator()">Reset</button>
+            </div>
+            <p class="save-load-hint">Your inputs are automatically saved to this browser.</p>
+        </section>
+
+        <section class="panel result-panel">
+            <div class="result-card">
+                <h3>📋 Performance Summary</h3>
+                <div class="metric">
+                    <span>Total Investment:</span>
+                    <span class="metric-value" id="totalInvestment">$0.00</span>
+                </div>
+                <div class="metric">
+                    <span>Immediate Revenue:</span>
+                    <span class="metric-value" id="immediateRevenue">$0.00</span>
+                </div>
+                <div class="metric">
+                    <span>LTV-Based Revenue:</span>
+                    <span class="metric-value" id="ltvRevenue">$0.00</span>
+                </div>
+                <div class="metric">
+                    <span>Net Profit (LTV):</span>
+                    <span class="metric-value" id="netProfitLTV">$0.00</span>
+                </div>
+                <div class="metric">
+                    <span>ROI Percentage (LTV):</span>
+                    <span class="metric-value" id="roiPercentageLTV">0%</span>
+                </div>
+            </div>
+
+            <div class="result-card">
+                <h3>🎯 Key Metrics</h3>
+                <div class="metric">
+                    <span>Customer Acquisition Cost (CAC):</span>
+                    <span class="metric-value" id="cac">$0.00</span>
+                </div>
+                <div class="metric">
+                    <span>LTV to CAC Ratio:</span>
+                    <span class="metric-value" id="ltvCacRatio">0:1</span>
+                </div>
+                <div class="metric">
+                    <span>Break-even Point (Customers):</span>
+                    <span class="metric-value" id="breakEvenPoint">0</span>
+                </div>
+                <div class="metric">
+                    <span>Return per Dollar:</span>
+                    <span class="metric-value" id="returnPerDollar">$0.00</span>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="roiChart"></canvas>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Initialize Chart.js
+        let roiChart;
+        const ctx = document.getElementById('roiChart').getContext('2d');
+
+        // Main Calculation Function
+        function calculateAdvancedROI() {
+            // Get and parse all input values
+            const contentProduction = parseFloat(document.getElementById('contentProduction').value) || 0;
+            const contentPromotion = parseFloat(document.getElementById('contentPromotion').value) || 0;
+            const toolsSoftware = parseFloat(document.getElementById('toolsSoftware').value) || 0;
+            const convertedLeads = parseFloat(document.getElementById('convertedLeads').value) || 0;
+            const conversionRate = parseFloat(document.getElementById('conversionRate').value) || 0;
+            const averageSale = parseFloat(document.getElementById('averageSale').value) || 0;
+            const customerLTV = parseFloat(document.getElementById('customerLTV').value) || 0;
+
+            // Advanced Calculations
+            const totalInvestment = contentProduction + contentPromotion + (toolsSoftware * 12); // Annualize software cost
+            const customersAcquired = convertedLeads * (conversionRate / 100);
+            const immediateRevenue = customersAcquired * averageSale;
+            const ltvRevenue = customersAcquired * customerLTV;
+            const netProfitLTV = ltvRevenue - totalInvestment;
+            const roiPercentageLTV = totalInvestment > 0 ? ((netProfitLTV / totalInvestment) * 100) : 0;
+            const cac = customersAcquired > 0 ? (totalInvestment / customersAcquired) : 0;
+            const ltvCacRatio = cac > 0 ? (customerLTV / cac).toFixed(2) : 0;
+            const breakEvenPoint = averageSale > 0 ? Math.ceil(totalInvestment / averageSale) : 0;
+            const returnPerDollar = totalInvestment > 0 ? (ltvRevenue / totalInvestment) : 0;
+
+            // Update the DOM with results
+            document.getElementById('totalInvestment').textContent = `$${totalInvestment.toFixed(2)}`;
+            document.getElementById('immediateRevenue').textContent = `$${immediateRevenue.toFixed(2)}`;
+            document.getElementById('ltvRevenue').textContent = `$${ltvRevenue.toFixed(2)}`;
+            document.getElementById('netProfitLTV').textContent = `$${netProfitLTV.toFixed(2)}`;
+            document.getElementById('netProfitLTV').className = `metric-value ${netProfitLTV >= 0 ? 'positive' : 'negative'}`;
+            document.getElementById('roiPercentageLTV').textContent = `${roiPercentageLTV.toFixed(2)}%`;
+            document.getElementById('roiPercentageLTV').className = `metric-value ${roiPercentageLTV >= 0 ? 'positive' : 'negative'}`;
+            document.getElementById('cac').textContent = `$${cac.toFixed(2)}`;
+            document.getElementById('ltvCacRatio').textContent = `${ltvCacRatio}:1`;
+            document.getElementById('ltvCacRatio').className = `metric-value ${ltvCacRatio >= 3 ? 'positive' : (ltvCacRatio >= 1 ? 'neutral' : 'negative')}`;
+            document.getElementById('breakEvenPoint').textContent = breakEvenPoint;
+            document.getElementById('returnPerDollar').textContent = `$${returnPerDollar.toFixed(2)}`;
+
+            // Update the Chart
+            updateROIChart(totalInvestment, immediateRevenue, ltvRevenue, netProfitLTV);
+        }
+
+        function updateROIChart(investment, immediateRev, ltvRev, netProfit) {
+            if (roiChart) {
+                roiChart.destroy(); // Destroy previous chart to avoid overlap
+            }
+
+            roiChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Investment', 'Immediate Revenue', 'LTV Revenue', 'Net Profit (LTV)'],
+                    datasets: [{
+                        label: 'Financial Breakdown ($)',
+                        data: [investment, immediateRev, ltvRev, netProfit],
+                        backgroundColor: [
+                            'rgba(239, 71, 111, 0.7)',  // Red for investment
+                            'rgba(255, 209, 102, 0.7)', // Yellow for immediate
+                            'rgba(76, 201, 240, 0.7)',  // Blue for LTV
+                            netProfit >= 0 ? 'rgba(46, 204, 113, 0.7)' : 'rgba(231, 76, 60, 0.7)' // Green/Red for profit/loss
+                        ],
+                        borderColor: [
+                            'rgba(239, 71, 111, 1)',
+                            'rgba(255, 209, 102, 1)',
+                            'rgba(76, 201, 240, 1)',
+                            netProfit >= 0 ? 'rgba(46, 204, 113, 1)' : 'rgba(231, 76, 60, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'US Dollars ($)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Content Investment vs. Return'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Data Persistence Functions
+        function saveData() {
+            const inputs = document.querySelectorAll('input');
+            const data = {};
+            inputs.forEach(input => {
+                data[input.id] = input.value;
+            });
+            localStorage.setItem('contentRoiCalculatorData', JSON.stringify(data));
+            alert('Inputs saved to this browser!');
+        }
+
+        function loadData() {
+            const savedData = JSON.parse(localStorage.getItem('contentRoiCalculatorData'));
+            if (savedData) {
+                for (const id in savedData) {
+                    if (document.getElementById(id)) {
+                        document.getElementById(id).value = savedData[id];
+                    }
+                }
+                alert('Inputs loaded!');
+            } else {
+                alert('No saved data found.');
+            }
+        }
+
+        function resetCalculator() {
+            if (confirm('Are you sure you want to reset all inputs?')) {
+                const inputs = document.querySelectorAll('input');
+                inputs.forEach(input => input.value = '');
+                if (roiChart) {
+                    roiChart.destroy();
+                }
+                // Clear results display
+                const metricValues = document.querySelectorAll('.metric-value');
+                metricValues.forEach(span => {
+                    span.textContent = span.textContent.includes('$') ? '$0.00' : '0';
+                    span.className = 'metric-value';
+                });
+            }
+        }
+
+        // Try to load saved data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData(); // Comment this line out if you don't want auto-load on start
+            // Add event listener for Enter key
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        calculateAdvancedROI();
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
